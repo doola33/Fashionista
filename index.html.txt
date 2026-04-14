@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fashionista</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0f;color:#f0f0ff;font-family:sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center}
+.app{width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:#0a0a0f}
+.hdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a28}
+.logo{font-weight:700;font-size:18px;color:#fffc00}
+.logo span{color:#f0f0ff}
+.badge{font-size:10px;background:#fffc0022;color:#fffc00;padding:3px 8px;border-radius:20px}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+.setup{align-items:center;justify-content:center;padding:32px 24px;gap:24px}
+.big-icon{font-size:52px}
+.setup-title{font-weight:700;font-size:22px;text-align:center;line-height:1.35;color:#fffc00}
+.card{background:#12121a;border:1px solid #22223a;border-radius:20px;padding:22px 18px;width:100%;display:flex;flex-direction:column;gap:12px}
+.lbl{font-size:11px;color:#6b6b8a;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+input[type=text]{background:#1a1a28;border:1.5px solid #2a2a40;border-radius:12px;padding:13px 16px;color:#f0f0ff;font-size:16px;width:100%;outline:none}
+input[type=text]:focus{border-color:#fffc00}
+.enter-btn{background:#fffc00;color:#000;border:none;border-radius:14px;padding:18px;font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-top:8px;font-size:16px}
+.chat-hdr{padding:13px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1a1a28;flex-shrink:0}
+.av{width:36px;height:36px;border-radius:50%;background:#fffc00;color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.peer-name{font-weight:600;font-size:15px}
+.peer-status{font-size:12px;color:#6b6b8a}
+.peer-status.on{color:#44ff88}
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:6px}
+.notice{text-align:center;font-size:11px;color:#6b6b8a;padding:8px}
+.notice span{color:#fffc00}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:.4;padding:40px}
+.empty-ico{font-size:34px}
+.empty-txt{font-size:13px;color:#6b6b8a;text-align:center}
+.msg-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:4px}
+.msg-row.own{flex-direction:row-reverse}
+.mini-av{width:26px;height:26px;border-radius:50%;background:#2a2a40;color:#6b6b8a;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-row.own .mini-av{background:#fffc0033;color:#fffc00}
+.bub{max-width:72%;background:#1e1e2e;border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-word}
+.msg-row.own .bub{background:#fffc00;color:#000;border-radius:18px 18px 4px 18px}
+.bub.media{padding:0;background:transparent!important}
+.msg-time{font-size:10px;color:#6b6b8a;margin-top:3px}
+.msg-row.own .msg-time{text-align:right}
+.msg-img{max-width:220px;border-radius:12px;display:block;cursor:pointer}
+.input-bar{padding:12px 14px;background:#0a0a0f;border-top:1px solid #1a1a28;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ico-btn{background:#1a1a28;border:none;border-radius:10px;padding:10px;color:#6b6b8a;cursor:pointer;font-size:13px;font-weight:700}
+.msg-input{flex:1;background:#12121a;border:1.5px solid #22223a;border-radius:22px;padding:10px 16px;color:#f0f0ff;font-size:15px;outline:none}
+.send-btn{background:#fffc00;border:none;border-radius:50%;width:42px;height:42px;color:#000;font-size:18px;cursor:pointer;flex-shrink:0}
+.gif-panel{background:#12121a;border-top:1px solid #1a1a28;padding:12px;max-height:240px;overflow-y:auto;display:none}
+.gif-panel.open{display:block}
+.gif-search{width:100%;background:#1a1a28;border:1.5px solid #2a2a40;border-radius:10px;padding:9px 14px;color:#f0f0ff;font-size:14px;outline:none;margin-bottom:10px}
+.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gif-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer}
+.gif-item img{width:100%;height:100%;object-fit:cover}
+.lightbox{display:none;position:fixed;inset:0;background:#000c;align-items:center;justify-content:center;z-index:100;cursor:pointer}
+.lightbox.open{display:flex}
+.lightbox img{max-width:94vw;max-height:90vh;border-radius:12px}
+.joined-toast{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#44ff88;color:#000;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;white-space:nowrap}
+.joined-toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="logo">The <span>Fashionista</span></div>
+    <div class="badge">👗 PRIVATE</div>
+  </div>
+
+  <!-- Setup Screen -->
+  <div class="screen setup active" id="setupScreen">
+    <div class="big-icon">👗</div>
+    <div class="setup-title">Welcome to The Fashionista</div>
+    <div class="card">
+      <div class="lbl">Your Name</div>
+      <input type="text" id="nameInput" placeholder="What should we call you?" />
+<a href="#" class="enter-btn" id="enterBtn" style="display:block;text-align:center;text-decoration:none;padding:18px;background:#fffc00;color:#000;border-radius:14px;font-weight:700;font-size:16px;">ENTER CHAT →</a>
+    </div>
+  </div>
+
+  <!-- Chat Screen -->
+  <div class="screen" id="chatScreen" style="flex-direction:column">
+    <div class="chat-hdr">
+      <div class="av" id="peerAv">?</div>
+      <div>
+        <div class="peer-name" id="peerName">Waiting for friend...</div>
+        <div class="peer-status" id="peerStatus">○ Not connected yet</div>
+      </div>
+    </div>
+    <div class="msgs" id="msgs">
+      <div class="notice"><span>👗</span> Private chat — messages vanish when you leave</div>
+      <div class="empty" id="emptyState">
+        <div class="empty-ico">💬</div>
+        <div class="empty-txt">We find your favorite clothes.</div>
+      </div>
+    </div>
+    <div class="gif-panel" id="gifPanel">
+      <input type="text" class="gif-search" id="gifSearch" placeholder="Search GIFs..." />
+      <div class="gif-grid" id="gifGrid"></div>
+    </div>
+    <div class="input-bar">
+      <button class="ico-btn" id="gifBtn">GIF</button>
+      <button class="ico-btn" id="imgBtn">🖼</button>
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
+      <input type="text" class="msg-input" id="msgInput" placeholder="Message..." />
+      <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt="full" /></div>
+<div class="joined-toast" id="joinedToast"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDn6UGA1n-xR53vxKbMJQH6xH32F-CUI5I",
+  authDomain: "cloud-storage-246e0.firebaseapp.com",
+  databaseURL: "https://cloud-storage-246e0-default-rtdb.firebaseio.com",
+  projectId: "cloud-storage-246e0",
+  storageBucket: "cloud-storage-246e0.firebasestorage.app",
+  messagingSenderId: "337915567136",
+  appId: "1:337915567136:web:70c85f255529d2e557f045"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const today = new Date();
+const interval = Math.floor(today.getMinutes() / 5);
+const today = new Date();
+const interval = Math.floor(today.getMinutes() / 5);
+const ROOM = "FASHION1" + today.getFullYear() + (today.getMonth()+1) + today.getDate() + today.getHours() + interval;
+const myId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+let myName = "";
+const nowTime = () => new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+const initials = n => n ? n.slice(0,2).toUpperCase() : "?";
+
+// Screens
+const setupScreen = document.getElementById("setupScreen");
+const chatScreen = document.getElementById("chatScreen");
+const nameInput = document.getElementById("nameInput");
+const enterBtn = document.getElementById("enterBtn");
+const msgs = document.getElementById("msgs");
+const emptyState = document.getElementById("emptyState");
+const msgInput = document.getElementById("msgInput");
+const sendBtn = document.getElementById("sendBtn");
+const peerAv = document.getElementById("peerAv");
+const peerNameEl = document.getElementById("peerName");
+const peerStatus = document.getElementById("peerStatus");
+const gifBtn = document.getElementById("gifBtn");
+const gifPanel = document.getElementById("gifPanel");
+const gifSearch = document.getElementById("gifSearch");
+const gifGrid = document.getElementById("gifGrid");
+const imgBtn = document.getElementById("imgBtn");
+const fileInput = document.getElementById("fileInput");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightboxImg");
+const joinedToast = document.getElementById("joinedToast");
+
+let peerOnline = false;
+let msgCount = 0;
+
+function enterChat() {
+  myName = nameInput.value.trim();
+  if (!myName) return;
+  
+  setupScreen.classList.remove("active");
+  chatScreen.classList.add("active");
+
+const presRef = db.ref(`rooms/${ROOM}/presence/${myId}`);
+  presRef.set({ name: myName, online: true });
+  presRef.onDisconnect().remove();
+  db.ref(`rooms/${ROOM}/typing/${myId}`).onDisconnect().remove();
+
+  // Clear messages if last session ended more than 5 seconds ago
+  db.ref(`rooms/${ROOM}/lastActive`).once("value", s => {
+    const lastActive = s.val();
+    const now = Date.now();
+if (!lastActive || (now - lastActive) > 5000) {
+      db.ref(`rooms/${ROOM}/messages`).remove();
+    }
+    db.ref(`rooms/${ROOM}/lastActive`).set(now);
+    db.ref(`rooms/${ROOM}/lastActive`).onDisconnect().set(Date.now());
+  });
+
+  // Listen for messages
+  db.ref(`rooms/${ROOM}/messages`).on("value", snap => {
+    const val = snap.val();
+    const allMsgs = val ? Object.entries(val).map(([k,v]) => ({...v,_key:k})).sort((a,b)=>a.ts-b.ts) : [];
+    
+    // Clear existing messages (except notice)
+    while (msgs.children.length > 1) msgs.removeChild(msgs.lastChild);
+    
+    if (allMsgs.length === 0) {
+      msgs.appendChild(emptyState);
+    } else {
+      emptyState.remove();
+      allMsgs.forEach(msg => renderMessage(msg));
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  });
+
+ // Listen for presence  db.ref(`rooms/${ROOM}/presence`).on("value", snap => {
+    const val = snap.val() || {};
+    const others = Object.entries(val).filter(([id]) => id !== myId);
+    if (others.length > 0) {
+      const [,peer] = others[0];
+      peerNameEl.textContent = peer.name;
+      peerAv.textContent = initials(peer.name);
+      peerStatus.textContent = "● Online";
+      peerStatus.className = "peer-status on";
+      if (!peerOnline) {
+        showJoinedToast(peer.name);
+      }
+      peerOnline = true;
+    } else {
+      peerNameEl.textContent = "Waiting for friend...";
+      peerAv.textContent = "?";
+      peerStatus.textContent = "○ Not connected yet";
+      peerStatus.className = "peer-status";
+      // Only delete messages if room is completely empty
+      db.ref(`rooms/${ROOM}/presence`).once("value", s => {
+        if (!s.val()) {
+          db.ref(`rooms/${ROOM}`).remove();
+        }
+      });
+      peerOnline = false;
+    }
+  });
+}
+
+function renderMessage(msg) {
+  const own = msg.senderId === myId;
+  const row = document.createElement("div");
+  row.className = `msg-row ${own ? "own" : ""}`;
+  
+  const av = document.createElement("div");
+  av.className = "mini-av";
+  av.textContent = initials(msg.senderName);
+  
+  const content = document.createElement("div");
+  
+  if (msg.type === "text") {
+    const bub = document.createElement("div");
+    bub.className = "bub";
+    bub.textContent = msg.text;
+    content.appendChild(bub);
+  } else {
+    const bub = document.createElement("div");
+    bub.className = "bub media";
+    const img = document.createElement("img");
+    img.src = msg.text;
+    img.className = "msg-img";
+    img.onclick = () => { lightboxImg.src = msg.text; lightbox.classList.add("open"); };
+    bub.appendChild(img);
+    content.appendChild(bub);
+  }
+  
+  const time = document.createElement("div");
+  time.className = "msg-time";
+  time.textContent = msg.time;
+  content.appendChild(time);
+  
+  row.appendChild(av);
+  row.appendChild(content);
+  msgs.appendChild(row);
+}
+
+function sendMessage(text, type) {
+  if (!text) return;
+  db.ref(`rooms/${ROOM}/messages`).push({
+    senderId: myId, senderName: myName,
+    type: type || "text", text,
+    time: nowTime(), ts: Date.now()
+  });
+}
+
+function showJoinedToast(name) {
+  joinedToast.textContent = `👗 ${name} has joined the chat!`;
+  joinedToast.classList.add("show");
+  setTimeout(() => joinedToast.classList.remove("show"), 3500);
+}
+
+// GIF search
+const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPzkcsvZnAlt_Mle";
+let gifTimeout;
+
+async function searchGifs(q) {
+  const url = q
+    ? `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=${TENOR_KEY}&limit=12&media_filter=gif`
+    : `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=12&media_filter=gif`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    gifGrid.innerHTML = "";
+    (data.results || []).forEach(g => {
+      const url = g?.media_formats?.tinygif?.url || g?.media_formats?.gif?.url;
+      if (!url) return;
+      const item = document.createElement("div");
+      item.className = "gif-item";
+      const img = document.createElement("img");
+      img.src = url;
+      img.loading = "lazy";
+      item.appendChild(img);
+      item.onclick = () => {
+        sendMessage(url, "gif");
+        gifPanel.classList.remove("open");
+        gifGrid.innerHTML = "";
+        gifSearch.value = "";
+      };
+      gifGrid.appendChild(item);
+    });
+  } catch(e) {}
+}
+
+// Event listeners
+enterBtn.addEventListener("click", enterChat);
+enterBtn.addEventListener("touchend", (e) => { e.preventDefault(); enterChat(); });
+nameInput.addEventListener("keydown", e => { if (e.key === "Enter") enterChat(); });
+nameInput.addEventListener("input", () => {
+  clearTimeout(window._nameTimer);
+  if (nameInput.value.trim().length >= 2) {
+    window._nameTimer = setTimeout(enterChat, 2000);
+  }
+});
+
+sendBtn.addEventListener("click", () => {
+  const text = msgInput.value.trim();
+  if (!text) return;
+  sendMessage(text, "text");
+  msgInput.value = "";
+});
+
+msgInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const text = msgInput.value.trim();
+    if (!text) return;
+    sendMessage(text, "text");
+    msgInput.value = "";
+  }
+});
+
+gifBtn.addEventListener("click", () => {
+  gifPanel.classList.toggle("open");
+  if (gifPanel.classList.contains("open")) searchGifs("");
+});
+
+gifSearch.addEventListener("input", () => {
+  clearTimeout(gifTimeout);
+  gifTimeout = setTimeout(() => searchGifs(gifSearch.value), 500);
+});
+
+imgBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => sendMessage(e.target.result, "image");
+  reader.readAsDataURL(file);
+});
+
+lightbox.addEventListener("click", () => lightbox.classList.remove("open"));
+
+setInterval(() => {
+  db.ref(`rooms/${ROOM}/presence`).once("value", s => {
+    const val = s.val() || {};
+    const users = Object.keys(val);
+    if (users.length <= 1) {
+      db.ref(`rooms/${ROOM}/messages`).remove();
+    }
+  });
+}, 5000);
+</script>
+</body>
+</html>
