@@ -151,7 +151,7 @@ body{display:flex;justify-content:center;font-family:-apple-system,BlinkMacSyste
       <div class="session-tag" id="sessionTag"></div>
     </div>
     <div class="msgs" id="msgs">
-      <div class="notice"><em>👗 Fashionista</em> — messages vanish when the session ends</div>
+      <div class="notice"><em>👗 Fashionista</em> — What can we find for you today?</div>
       <div class="empty" id="emptyState">
         <div class="empty-ico">💬</div>
         <div class="empty-txt">Say something.<br/>It won't last forever.</div>
@@ -205,7 +205,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ── Config ────────────────────────────────────────────────────────────────────
-const PASSWORD = "Shop";
+const PASSWORD = "shop";
 const SESSION_GAP = 5 * 60 * 1000; // 5 minutes
 const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPzkcsvZnAlt_Mle";
 const myId = Math.random().toString(36).slice(2) + Date.now().toString(36);
