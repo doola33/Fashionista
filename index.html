@@ -276,18 +276,8 @@ async function enterChat() {
   // Set presence
   const presRef = db.ref(`rooms/${currentRoom}/presence/${myId}`);
   presRef.set({ name: myName, online: true, joinedAt: Date.now() });
-presRef.onDisconnect().remove();
-db.ref(`rooms/${currentRoom}/typing/${myId}`).onDisconnect().remove();
-
-// When presence changes, if room is empty delete everything immediately
-db.ref(`rooms/${currentRoom}/presence`).on("value", snap => {
-  const val = snap.val() || {};
-  const everyone = Object.keys(val);
-  if (everyone.length === 0) {
-    db.ref(`rooms/${currentRoom}`).remove();
-    db.ref("fashionista_session").remove();
-  }
-});  db.ref(`rooms/${currentRoom}/typing/${myId}`).onDisconnect().remove();
+  presRef.onDisconnect().remove();
+  db.ref(`rooms/${currentRoom}/typing/${myId}`).onDisconnect().remove();
 
   // Update session last active periodically
   setInterval(() => {
@@ -560,14 +550,6 @@ document.getElementById("prevRm").addEventListener("click", clearPendingImage);
 
 document.getElementById("lightbox").addEventListener("click", () => {
   document.getElementById("lightbox").classList.remove("open");
-});
-// Immediate cleanup when tab/app closes
-window.addEventListener("pagehide", () => {
-  db.ref(`rooms/${currentRoom}/presence/${myId}`).remove();
-});
-
-window.addEventListener("beforeunload", () => {
-  db.ref(`rooms/${currentRoom}/presence/${myId}`).remove();
 });
 </script>
 </body>
