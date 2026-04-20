@@ -2,64 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Fashionista</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fashionista</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0f;color:#f0f0ff;font-family:sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center}
-.app{width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:#0a0a0f}
-.hdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a28}
-.logo{font-weight:700;font-size:18px;color:#fffc00}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0a0a0f}
+body{display:flex;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.app{width:100%;max-width:480px;height:100vh;height:100dvh;display:flex;flex-direction:column;background:#0a0a0f;color:#f0f0ff;position:relative}
+
+/* Header */
+.hdr{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a28;flex-shrink:0;background:#0a0a0f}
+.logo{font-weight:800;font-size:20px;color:#fffc00;letter-spacing:-0.5px}
 .logo span{color:#f0f0ff}
-.badge{font-size:10px;background:#fffc0022;color:#fffc00;padding:3px 8px;border-radius:20px}
-.screen{display:none;flex:1;flex-direction:column}
+.badge{font-size:10px;background:#fffc0022;color:#fffc00;padding:3px 10px;border-radius:20px;font-weight:700;letter-spacing:0.5px}
+
+/* Screens */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-.setup{align-items:center;justify-content:center;padding:32px 24px;gap:24px}
-.big-icon{font-size:52px}
-.setup-title{font-weight:700;font-size:22px;text-align:center;line-height:1.35;color:#fffc00}
-.card{background:#12121a;border:1px solid #22223a;border-radius:20px;padding:22px 18px;width:100%;display:flex;flex-direction:column;gap:12px}
-.lbl{font-size:11px;color:#6b6b8a;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
-input[type=text]{background:#1a1a28;border:1.5px solid #2a2a40;border-radius:12px;padding:13px 16px;color:#f0f0ff;font-size:16px;width:100%;outline:none}
-input[type=text]:focus{border-color:#fffc00}
-.enter-btn{background:#fffc00;color:#000;border:none;border-radius:14px;padding:18px;font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-top:8px;font-size:16px}
-.chat-hdr{padding:13px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1a1a28;flex-shrink:0}
-.av{width:36px;height:36px;border-radius:50%;background:#fffc00;color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.peer-name{font-weight:600;font-size:15px}
-.peer-status{font-size:12px;color:#6b6b8a}
+
+/* Setup */
+.setup{align-items:center;justify-content:center;padding:28px 24px;gap:20px;overflow-y:auto}
+.big-icon{font-size:56px;margin-bottom:4px}
+.setup-title{font-size:24px;font-weight:800;text-align:center;line-height:1.3;color:#f0f0ff}
+.setup-title em{color:#fffc00;font-style:normal}
+.card{background:#12121a;border:1px solid #22223a;border-radius:20px;padding:24px 20px;width:100%;display:flex;flex-direction:column;gap:14px}
+.lbl{font-size:11px;color:#6b6b8a;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.field{background:#1a1a28;border:1.5px solid #2a2a40;border-radius:12px;padding:14px 16px;color:#f0f0ff;font-size:16px;width:100%;outline:none;-webkit-appearance:none;appearance:none;font-family:inherit}
+.field:focus{border-color:#fffc00}
+.field::placeholder{color:#6b6b8a}
+.enter-btn{background:#fffc00;color:#000;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:800;width:100%;cursor:pointer;touch-action:manipulation;-webkit-appearance:none;appearance:none;font-family:inherit;letter-spacing:0.3px}
+.enter-btn:active{opacity:0.8}
+.error-msg{color:#ff4466;font-size:13px;text-align:center;display:none}
+.error-msg.show{display:block}
+
+/* Chat header */
+.chat-hdr{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1a1a28;flex-shrink:0;background:#0a0a0f}
+.av{width:38px;height:38px;border-radius:50%;background:#fffc00;color:#000;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.peer-info{flex:1}
+.peer-name{font-weight:700;font-size:15px;color:#f0f0ff}
+.peer-status{font-size:12px;color:#6b6b8a;margin-top:1px}
 .peer-status.on{color:#44ff88}
-.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:6px}
-.notice{text-align:center;font-size:11px;color:#6b6b8a;padding:8px}
-.notice span{color:#fffc00}
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:.4;padding:40px}
-.empty-ico{font-size:34px}
-.empty-txt{font-size:13px;color:#6b6b8a;text-align:center}
-.msg-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:4px}
+.session-tag{font-size:10px;color:#6b6b8a;background:#1a1a28;padding:3px 8px;border-radius:8px;font-weight:600}
+
+/* Messages */
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.notice{text-align:center;font-size:11px;color:#6b6b8a;padding:10px;font-weight:500}
+.notice em{color:#fffc00;font-style:normal}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0.4;padding:40px}
+.empty-ico{font-size:36px}
+.empty-txt{font-size:13px;color:#6b6b8a;text-align:center;line-height:1.5}
+.msg-row{display:flex;align-items:flex-end;gap:8px}
 .msg-row.own{flex-direction:row-reverse}
-.mini-av{width:26px;height:26px;border-radius:50%;background:#2a2a40;color:#6b6b8a;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.msg-row.own .mini-av{background:#fffc0033;color:#fffc00}
-.bub{max-width:72%;background:#1e1e2e;border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-word}
+.mini-av{width:28px;height:28px;border-radius:50%;background:#1e1e2e;color:#6b6b8a;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-row.own .mini-av{background:#fffc0022;color:#fffc00}
+.msg-content{display:flex;flex-direction:column;max-width:72%}
+.bub{background:#1e1e2e;border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-word;color:#f0f0ff}
 .msg-row.own .bub{background:#fffc00;color:#000;border-radius:18px 18px 4px 18px}
-.bub.media{padding:0;background:transparent!important}
-.msg-time{font-size:10px;color:#6b6b8a;margin-top:3px}
-.msg-row.own .msg-time{text-align:right}
+.bub.media{padding:0;background:transparent}
+.msg-row.own .bub.media{background:transparent}
 .msg-img{max-width:220px;border-radius:12px;display:block;cursor:pointer}
-.input-bar{padding:12px 14px;background:#0a0a0f;border-top:1px solid #1a1a28;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.ico-btn{background:#1a1a28;border:none;border-radius:10px;padding:10px;color:#6b6b8a;cursor:pointer;font-size:13px;font-weight:700}
-.msg-input{flex:1;background:#12121a;border:1.5px solid #22223a;border-radius:22px;padding:10px 16px;color:#f0f0ff;font-size:15px;outline:none}
-.send-btn{background:#fffc00;border:none;border-radius:50%;width:42px;height:42px;color:#000;font-size:18px;cursor:pointer;flex-shrink:0}
-.gif-panel{background:#12121a;border-top:1px solid #1a1a28;padding:12px;max-height:240px;overflow-y:auto;display:none}
+.msg-time{font-size:10px;color:#6b6b8a;margin-top:3px;padding:0 4px}
+.msg-row.own .msg-time{text-align:right}
+.typing-bub{display:flex;gap:4px;align-items:center;padding:12px 16px}
+.dot{width:6px;height:6px;border-radius:50%;background:#6b6b8a;animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* GIF Panel */
+.gif-panel{background:#12121a;border-top:1px solid #1a1a28;padding:10px;max-height:220px;overflow-y:auto;display:none;flex-shrink:0}
 .gif-panel.open{display:block}
-.gif-search{width:100%;background:#1a1a28;border:1.5px solid #2a2a40;border-radius:10px;padding:9px 14px;color:#f0f0ff;font-size:14px;outline:none;margin-bottom:10px}
-.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.gif-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer}
+.gif-search{width:100%;background:#1a1a28;border:1.5px solid #2a2a40;border-radius:10px;padding:9px 14px;color:#f0f0ff;font-size:14px;outline:none;margin-bottom:8px;-webkit-appearance:none;font-family:inherit}
+.gif-search:focus{border-color:#fffc00}
+.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.gif-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;touch-action:manipulation}
 .gif-item img{width:100%;height:100%;object-fit:cover}
-.lightbox{display:none;position:fixed;inset:0;background:#000c;align-items:center;justify-content:center;z-index:100;cursor:pointer}
+.gif-empty{text-align:center;color:#6b6b8a;font-size:13px;padding:20px}
+
+/* Image preview */
+.img-prev{padding:8px 14px;background:#12121a;border-top:1px solid #1a1a28;display:none;align-items:center;gap:10px;flex-shrink:0}
+.img-prev.show{display:flex}
+.prev-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover}
+.prev-name{font-size:12px;color:#6b6b8a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prev-rm{background:none;border:none;color:#ff4466;cursor:pointer;font-size:20px;touch-action:manipulation;padding:4px}
+
+/* Input bar */
+.input-bar{padding:10px 12px;background:#0a0a0f;border-top:1px solid #1a1a28;display:flex;align-items:flex-end;gap:8px;flex-shrink:0;padding-bottom:max(10px, env(safe-area-inset-bottom))}
+.ico-btn{background:#1a1a28;border:none;border-radius:10px;padding:10px 11px;color:#6b6b8a;cursor:pointer;font-size:13px;font-weight:800;touch-action:manipulation;flex-shrink:0;font-family:inherit}
+.ico-btn.act{color:#fffc00}
+.inp-wrap{flex:1;background:#12121a;border:1.5px solid #22223a;border-radius:22px;padding:10px 16px;display:flex;align-items:center}
+.msg-input{flex:1;background:transparent;border:none;color:#f0f0ff;font-size:15px;outline:none;font-family:inherit;resize:none;max-height:80px;line-height:1.4}
+.msg-input::placeholder{color:#6b6b8a}
+.send-btn{background:#fffc00;border:none;border-radius:50%;width:44px;height:44px;color:#000;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:manipulation}
+.send-btn:active{opacity:0.8}
+
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;z-index:100;cursor:pointer}
 .lightbox.open{display:flex}
 .lightbox img{max-width:94vw;max-height:90vh;border-radius:12px}
-.joined-toast{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#44ff88;color:#000;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;white-space:nowrap}
-.joined-toast.show{display:block}
+
+/* Toasts */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.3s}
+.toast.show{opacity:1}
+.toast.green{background:#44ff88;color:#000}
+.toast.yellow{background:#fffc00;color:#000}
+
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-row{animation:msgIn 0.2s ease}
 </style>
 </head>
 <body>
@@ -72,47 +123,70 @@ input[type=text]:focus{border-color:#fffc00}
   <!-- Setup Screen -->
   <div class="screen setup active" id="setupScreen">
     <div class="big-icon">👗</div>
-    <div class="setup-title">Welcome to The Fashionista</div>
+    <div class="setup-title">Welcome to<br /><em>The Fashionista</em></div>
     <div class="card">
-      <div class="lbl">Your Name</div>
-      <input type="text" id="nameInput" placeholder="What should we call you?" />
-<input type="submit" value="ENTER CHAT →" onclick="enterChat()" style="display:block;width:100%;text-align:center;padding:18px;background:#fffc00;color:#000;border-radius:14px;font-weight:700;font-size:16px;border:none;margin-top:8px;">    </div>
+      <div>
+        <div class="lbl">Your Name</div>
+        <input class="field" type="text" id="nameInput" placeholder="What should we call you?" autocomplete="off" autocorrect="off" autocapitalize="words" />
+      </div>
+      <div>
+        <div class="lbl">Password</div>
+        <input class="field" type="password" id="passInput" placeholder="Enter password" autocomplete="off" />
+      </div>
+      <div class="error-msg" id="errorMsg">❌ Wrong password. Try again.</div>
+      <button class="enter-btn" id="enterBtn">ENTER CHAT →</button>
+    </div>
   </div>
 
   <!-- Chat Screen -->
-  <div class="screen" id="chatScreen" style="flex-direction:column">
+  <div class="screen" id="chatScreen">
     <div class="chat-hdr">
       <div class="av" id="peerAv">?</div>
-      <div>
+      <div class="peer-info">
         <div class="peer-name" id="peerName">Waiting for friend...</div>
         <div class="peer-status" id="peerStatus">○ Not connected yet</div>
       </div>
+      <div class="session-tag" id="sessionTag"></div>
     </div>
     <div class="msgs" id="msgs">
-      <div class="notice"><span>👗</span> Private chat — messages vanish when you leave</div>
+      <div class="notice"><em>👗 Fashionista</em> — messages vanish when the session ends</div>
       <div class="empty" id="emptyState">
         <div class="empty-ico">💬</div>
-        <div class="empty-txt">We find your favorite clothes.</div>
+        <div class="empty-txt">Say something.<br/>It won't last forever.</div>
       </div>
     </div>
     <div class="gif-panel" id="gifPanel">
       <input type="text" class="gif-search" id="gifSearch" placeholder="Search GIFs..." />
       <div class="gif-grid" id="gifGrid"></div>
     </div>
+    <div class="img-prev" id="imgPrev">
+      <img class="prev-thumb" id="prevThumb" src="" alt="preview" />
+      <span class="prev-name" id="prevName"></span>
+      <button class="prev-rm" id="prevRm">✕</button>
+    </div>
     <div class="input-bar">
       <button class="ico-btn" id="gifBtn">GIF</button>
       <button class="ico-btn" id="imgBtn">🖼</button>
       <input type="file" id="fileInput" accept="image/*" style="display:none">
-      <input type="text" class="msg-input" id="msgInput" placeholder="Message..." />
+      <div class="inp-wrap">
+        <textarea class="msg-input" id="msgInput" placeholder="Message..." rows="1"></textarea>
+      </div>
       <button class="send-btn" id="sendBtn">➤</button>
     </div>
   </div>
 </div>
 
-<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt="full" /></div>
-<div class="joined-toast" id="joinedToast"></div>
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <img id="lightboxImg" src="" alt="full size" />
+</div>
+
+<!-- Toasts -->
+<div class="toast green" id="joinedToast"></div>
+<div class="toast yellow" id="generalToast"></div>
 
 <script>
+// ── Firebase ──────────────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyDn6UGA1n-xR53vxKbMJQH6xH32F-CUI5I",
   authDomain: "cloud-storage-246e0.firebaseapp.com",
@@ -124,251 +198,359 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const today = new Date();
-const interval = Math.floor(today.getMinutes() / 5);
-const today = new Date();
-const interval = Math.floor(today.getMinutes() / 5);
-const ROOM = "FASHION1" + today.getFullYear() + (today.getMonth()+1) + today.getDate() + today.getHours() + interval;
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const PASSWORD = "Shop";
+const SESSION_GAP = 5 * 60 * 1000; // 5 minutes
+const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPzkcsvZnAlt_Mle";
 const myId = Math.random().toString(36).slice(2) + Date.now().toString(36);
 let myName = "";
+let currentRoom = "";
+let peerOnline = false;
+let pendingImageData = null;
+let gifTimeout = null;
+let typingTimeout = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 const nowTime = () => new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 const initials = n => n ? n.slice(0,2).toUpperCase() : "?";
 
-// Screens
-const setupScreen = document.getElementById("setupScreen");
-const chatScreen = document.getElementById("chatScreen");
-const nameInput = document.getElementById("nameInput");
-const enterBtn = document.getElementById("enterBtn");
-const msgs = document.getElementById("msgs");
-const emptyState = document.getElementById("emptyState");
-const msgInput = document.getElementById("msgInput");
-const sendBtn = document.getElementById("sendBtn");
-const peerAv = document.getElementById("peerAv");
-const peerNameEl = document.getElementById("peerName");
-const peerStatus = document.getElementById("peerStatus");
-const gifBtn = document.getElementById("gifBtn");
-const gifPanel = document.getElementById("gifPanel");
-const gifSearch = document.getElementById("gifSearch");
-const gifGrid = document.getElementById("gifGrid");
-const imgBtn = document.getElementById("imgBtn");
-const fileInput = document.getElementById("fileInput");
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightboxImg");
-const joinedToast = document.getElementById("joinedToast");
+function showToast(el, msg, duration=3000) {
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), duration);
+}
 
-let peerOnline = false;
-let msgCount = 0;
-
-function enterChat() {
-  myName = nameInput.value.trim();
-  if (!myName) return;
-  
-  setupScreen.classList.remove("active");
-  chatScreen.classList.add("active");
-
-const presRef = db.ref(`rooms/${ROOM}/presence/${myId}`);
-  presRef.set({ name: myName, online: true });
-  presRef.onDisconnect().remove();
-  db.ref(`rooms/${ROOM}/typing/${myId}`).onDisconnect().remove();
-
-  // Clear messages if last session ended more than 5 seconds ago
-  db.ref(`rooms/${ROOM}/lastActive`).once("value", s => {
-    const lastActive = s.val();
-    const now = Date.now();
-if (!lastActive || (now - lastActive) > 5000) {
-      db.ref(`rooms/${ROOM}/messages`).remove();
-    }
-    db.ref(`rooms/${ROOM}/lastActive`).set(now);
-    db.ref(`rooms/${ROOM}/lastActive`).onDisconnect().set(Date.now());
+// ── Room Management ───────────────────────────────────────────────────────────
+// Room is based on a session ID stored in Firebase
+// A new session starts if the room has been empty for > 5 minutes
+async function getOrCreateRoom() {
+  const sessionRef = db.ref("fashionista_session");
+  return new Promise(resolve => {
+    sessionRef.once("value", snap => {
+      const data = snap.val();
+      const now = Date.now();
+      
+      // If no session exists, or last activity was > 5 min ago, create new room
+      if (!data || (now - data.lastActive) > SESSION_GAP) {
+        const newRoomId = "room_" + Math.random().toString(36).slice(2,10).toUpperCase();
+        sessionRef.set({
+          roomId: newRoomId,
+          createdAt: now,
+          lastActive: now
+        });
+        resolve(newRoomId);
+      } else {
+        // Update last active and use existing room
+        sessionRef.update({ lastActive: now });
+        resolve(data.roomId);
+      }
+    });
   });
+}
+
+// ── Enter Chat ────────────────────────────────────────────────────────────────
+async function enterChat() {
+  const name = document.getElementById("nameInput").value.trim();
+  const pass = document.getElementById("passInput").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+
+  if (!name) return;
+  if (pass !== PASSWORD) {
+    errorMsg.classList.add("show");
+    document.getElementById("passInput").value = "";
+    return;
+  }
+
+  errorMsg.classList.remove("show");
+  myName = name;
+
+  // Get or create room
+  currentRoom = await getOrCreateRoom();
+  document.getElementById("sessionTag").textContent = currentRoom.replace("room_", "#");
+
+  // Switch screens
+  document.getElementById("setupScreen").classList.remove("active");
+  document.getElementById("chatScreen").classList.add("active");
+
+  // Set presence
+  const presRef = db.ref(`rooms/${currentRoom}/presence/${myId}`);
+  presRef.set({ name: myName, online: true, joinedAt: Date.now() });
+  presRef.onDisconnect().remove();
+  db.ref(`rooms/${currentRoom}/typing/${myId}`).onDisconnect().remove();
+
+  // Update session last active periodically
+  setInterval(() => {
+    db.ref("fashionista_session").update({ lastActive: Date.now() });
+  }, 60000);
 
   // Listen for messages
-  db.ref(`rooms/${ROOM}/messages`).on("value", snap => {
+  db.ref(`rooms/${currentRoom}/messages`).on("value", snap => {
     const val = snap.val();
-    const allMsgs = val ? Object.entries(val).map(([k,v]) => ({...v,_key:k})).sort((a,b)=>a.ts-b.ts) : [];
-    
-    // Clear existing messages (except notice)
-    while (msgs.children.length > 1) msgs.removeChild(msgs.lastChild);
-    
-    if (allMsgs.length === 0) {
-      msgs.appendChild(emptyState);
-    } else {
-      emptyState.remove();
-      allMsgs.forEach(msg => renderMessage(msg));
-    }
-    msgs.scrollTop = msgs.scrollHeight;
+    const allMsgs = val
+      ? Object.entries(val).map(([k,v]) => ({...v, _key:k})).sort((a,b) => a.ts - b.ts)
+      : [];
+    renderMessages(allMsgs);
   });
 
- // Listen for presence  db.ref(`rooms/${ROOM}/presence`).on("value", snap => {
+  // Listen for presence
+  db.ref(`rooms/${currentRoom}/presence`).on("value", snap => {
     const val = snap.val() || {};
     const others = Object.entries(val).filter(([id]) => id !== myId);
     if (others.length > 0) {
-      const [,peer] = others[0];
-      peerNameEl.textContent = peer.name;
-      peerAv.textContent = initials(peer.name);
-      peerStatus.textContent = "● Online";
-      peerStatus.className = "peer-status on";
+      const [, peer] = others[0];
+      document.getElementById("peerName").textContent = peer.name;
+      document.getElementById("peerAv").textContent = initials(peer.name);
+      document.getElementById("peerStatus").textContent = "● Online";
+      document.getElementById("peerStatus").className = "peer-status on";
       if (!peerOnline) {
-        showJoinedToast(peer.name);
+        showToast(document.getElementById("joinedToast"), `👗 ${peer.name} joined the chat!`);
       }
       peerOnline = true;
     } else {
-      peerNameEl.textContent = "Waiting for friend...";
-      peerAv.textContent = "?";
-      peerStatus.textContent = "○ Not connected yet";
-      peerStatus.className = "peer-status";
-      // Only delete messages if room is completely empty
-      db.ref(`rooms/${ROOM}/presence`).once("value", s => {
-        if (!s.val()) {
-          db.ref(`rooms/${ROOM}`).remove();
-        }
-      });
+      document.getElementById("peerName").textContent = "Waiting for friend...";
+      document.getElementById("peerAv").textContent = "?";
+      document.getElementById("peerStatus").textContent = "○ Not connected yet";
+      document.getElementById("peerStatus").className = "peer-status";
       peerOnline = false;
     }
   });
-}
 
-function renderMessage(msg) {
-  const own = msg.senderId === myId;
-  const row = document.createElement("div");
-  row.className = `msg-row ${own ? "own" : ""}`;
-  
-  const av = document.createElement("div");
-  av.className = "mini-av";
-  av.textContent = initials(msg.senderName);
-  
-  const content = document.createElement("div");
-  
-  if (msg.type === "text") {
-    const bub = document.createElement("div");
-    bub.className = "bub";
-    bub.textContent = msg.text;
-    content.appendChild(bub);
-  } else {
-    const bub = document.createElement("div");
-    bub.className = "bub media";
-    const img = document.createElement("img");
-    img.src = msg.text;
-    img.className = "msg-img";
-    img.onclick = () => { lightboxImg.src = msg.text; lightbox.classList.add("open"); };
-    bub.appendChild(img);
-    content.appendChild(bub);
-  }
-  
-  const time = document.createElement("div");
-  time.className = "msg-time";
-  time.textContent = msg.time;
-  content.appendChild(time);
-  
-  row.appendChild(av);
-  row.appendChild(content);
-  msgs.appendChild(row);
-}
-
-function sendMessage(text, type) {
-  if (!text) return;
-  db.ref(`rooms/${ROOM}/messages`).push({
-    senderId: myId, senderName: myName,
-    type: type || "text", text,
-    time: nowTime(), ts: Date.now()
+  // Listen for typing
+  db.ref(`rooms/${currentRoom}/typing`).on("value", snap => {
+    const val = snap.val() || {};
+    const othersTyping = Object.keys(val).filter(id => id !== myId);
+    const existing = document.getElementById("typingIndicator");
+    if (othersTyping.length > 0 && !existing) {
+      const row = document.createElement("div");
+      row.className = "msg-row";
+      row.id = "typingIndicator";
+      row.innerHTML = `
+        <div class="mini-av">${initials(document.getElementById("peerName").textContent)}</div>
+        <div class="msg-content">
+          <div class="bub typing-bub">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>`;
+      document.getElementById("msgs").appendChild(row);
+      document.getElementById("msgs").scrollTop = document.getElementById("msgs").scrollHeight;
+    } else if (othersTyping.length === 0 && existing) {
+      existing.remove();
+    }
   });
 }
 
-function showJoinedToast(name) {
-  joinedToast.textContent = `👗 ${name} has joined the chat!`;
-  joinedToast.classList.add("show");
-  setTimeout(() => joinedToast.classList.remove("show"), 3500);
+// ── Render Messages ───────────────────────────────────────────────────────────
+function renderMessages(allMsgs) {
+  const msgsEl = document.getElementById("msgs");
+  const emptyState = document.getElementById("emptyState");
+  const typingEl = document.getElementById("typingIndicator");
+
+  // Remove all message rows (keep notice, empty state, typing indicator)
+  Array.from(msgsEl.querySelectorAll(".msg-row:not(#typingIndicator)")).forEach(el => el.remove());
+
+  if (allMsgs.length === 0) {
+    if (!msgsEl.contains(emptyState)) msgsEl.insertBefore(emptyState, typingEl || null);
+  } else {
+    if (msgsEl.contains(emptyState)) emptyState.remove();
+    allMsgs.forEach(msg => {
+      const own = msg.senderId === myId;
+      const row = document.createElement("div");
+      row.className = `msg-row ${own ? "own" : ""}`;
+
+      const av = document.createElement("div");
+      av.className = "mini-av";
+      av.textContent = initials(msg.senderName);
+
+      const content = document.createElement("div");
+      content.className = "msg-content";
+
+      if (msg.type === "text") {
+        const bub = document.createElement("div");
+        bub.className = "bub";
+        bub.textContent = msg.text;
+        content.appendChild(bub);
+      } else {
+        const bub = document.createElement("div");
+        bub.className = "bub media";
+        const img = document.createElement("img");
+        img.src = msg.text;
+        img.className = "msg-img";
+        img.loading = "lazy";
+        img.onclick = () => {
+          document.getElementById("lightboxImg").src = msg.text;
+          document.getElementById("lightbox").classList.add("open");
+        };
+        bub.appendChild(img);
+        content.appendChild(bub);
+      }
+
+      const time = document.createElement("div");
+      time.className = "msg-time";
+      time.textContent = msg.time;
+      content.appendChild(time);
+
+      row.appendChild(av);
+      row.appendChild(content);
+      msgsEl.insertBefore(row, typingEl || null);
+    });
+  }
+  msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
-// GIF search
-const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPzkcsvZnAlt_Mle";
-let gifTimeout;
+// ── Send Message ──────────────────────────────────────────────────────────────
+function sendMessage() {
+  const input = document.getElementById("msgInput");
+  const text = input.value.trim();
+  if (!text && !pendingImageData) return;
+
+  db.ref(`rooms/${currentRoom}/messages`).push({
+    senderId: myId,
+    senderName: myName,
+    type: pendingImageData ? "image" : "text",
+    text: pendingImageData ? pendingImageData : text,
+    time: nowTime(),
+    ts: Date.now()
+  });
+
+  input.value = "";
+  clearPendingImage();
+  stopTyping();
+}
+
+function sendGif(url) {
+  db.ref(`rooms/${currentRoom}/messages`).push({
+    senderId: myId,
+    senderName: myName,
+    type: "gif",
+    text: url,
+    time: nowTime(),
+    ts: Date.now()
+  });
+  closeGifPanel();
+}
+
+// ── Typing ────────────────────────────────────────────────────────────────────
+function stopTyping() {
+  clearTimeout(typingTimeout);
+  if (currentRoom) db.ref(`rooms/${currentRoom}/typing/${myId}`).remove();
+}
+
+// ── Image ─────────────────────────────────────────────────────────────────────
+function clearPendingImage() {
+  pendingImageData = null;
+  document.getElementById("imgPrev").classList.remove("show");
+  document.getElementById("prevThumb").src = "";
+  document.getElementById("prevName").textContent = "";
+  document.getElementById("fileInput").value = "";
+}
+
+// ── GIF ───────────────────────────────────────────────────────────────────────
+function closeGifPanel() {
+  document.getElementById("gifPanel").classList.remove("open");
+  document.getElementById("gifGrid").innerHTML = "";
+  document.getElementById("gifSearch").value = "";
+  document.getElementById("gifBtn").classList.remove("act");
+}
 
 async function searchGifs(q) {
-  const url = q
-    ? `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=${TENOR_KEY}&limit=12&media_filter=gif`
-    : `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=12&media_filter=gif`;
+  const grid = document.getElementById("gifGrid");
+  grid.innerHTML = `<div class="gif-empty" style="grid-column:span 3">Loading...</div>`;
   try {
+    const url = q
+      ? `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=${TENOR_KEY}&limit=12&media_filter=gif`
+      : `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=12&media_filter=gif`;
     const res = await fetch(url);
     const data = await res.json();
-    gifGrid.innerHTML = "";
+    grid.innerHTML = "";
     (data.results || []).forEach(g => {
-      const url = g?.media_formats?.tinygif?.url || g?.media_formats?.gif?.url;
-      if (!url) return;
+      const gifUrl = g?.media_formats?.tinygif?.url || g?.media_formats?.gif?.url;
+      if (!gifUrl) return;
       const item = document.createElement("div");
       item.className = "gif-item";
       const img = document.createElement("img");
-      img.src = url;
+      img.src = gifUrl;
       img.loading = "lazy";
       item.appendChild(img);
-      item.onclick = () => {
-        sendMessage(url, "gif");
-        gifPanel.classList.remove("open");
-        gifGrid.innerHTML = "";
-        gifSearch.value = "";
-      };
-      gifGrid.appendChild(item);
+      item.onclick = () => sendGif(gifUrl);
+      grid.appendChild(item);
     });
-  } catch(e) {}
+    if (!grid.children.length) grid.innerHTML = `<div class="gif-empty" style="grid-column:span 3">No GIFs found</div>`;
+  } catch(e) {
+    grid.innerHTML = `<div class="gif-empty" style="grid-column:span 3">Failed to load GIFs</div>`;
+  }
 }
 
-// Event listeners
-enterBtn.addEventListener("click", enterChat);
-enterBtn.addEventListener("touchend", (e) => { e.preventDefault(); enterChat(); });
-nameInput.addEventListener("keydown", e => { if (e.key === "Enter") enterChat(); });
-nameInput.addEventListener("input", () => {
-  clearTimeout(window._nameTimer);
-  if (nameInput.value.trim().length >= 2) {
-    window._nameTimer = setTimeout(enterChat, 2000);
+// ── Event Listeners ───────────────────────────────────────────────────────────
+document.getElementById("enterBtn").addEventListener("click", enterChat);
+document.getElementById("enterBtn").addEventListener("touchend", e => { e.preventDefault(); enterChat(); });
+
+document.getElementById("nameInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); document.getElementById("passInput").focus(); }
+});
+document.getElementById("passInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); enterChat(); }
+});
+
+document.getElementById("passInput").addEventListener("input", () => {
+  document.getElementById("errorMsg").classList.remove("show");
+});
+
+document.getElementById("sendBtn").addEventListener("click", sendMessage);
+document.getElementById("sendBtn").addEventListener("touchend", e => { e.preventDefault(); sendMessage(); });
+
+document.getElementById("msgInput").addEventListener("input", function() {
+  if (currentRoom) {
+    db.ref(`rooms/${currentRoom}/typing/${myId}`).set(true);
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(stopTyping, 2000);
+  }
+  this.style.height = "auto";
+  this.style.height = Math.min(this.scrollHeight, 80) + "px";
+});
+
+document.getElementById("msgInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+document.getElementById("gifBtn").addEventListener("click", () => {
+  const panel = document.getElementById("gifPanel");
+  const isOpen = panel.classList.contains("open");
+  if (isOpen) {
+    closeGifPanel();
+  } else {
+    panel.classList.add("open");
+    document.getElementById("gifBtn").classList.add("act");
+    searchGifs("");
+    setTimeout(() => document.getElementById("gifSearch").focus(), 100);
   }
 });
 
-sendBtn.addEventListener("click", () => {
-  const text = msgInput.value.trim();
-  if (!text) return;
-  sendMessage(text, "text");
-  msgInput.value = "";
-});
-
-msgInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const text = msgInput.value.trim();
-    if (!text) return;
-    sendMessage(text, "text");
-    msgInput.value = "";
-  }
-});
-
-gifBtn.addEventListener("click", () => {
-  gifPanel.classList.toggle("open");
-  if (gifPanel.classList.contains("open")) searchGifs("");
-});
-
-gifSearch.addEventListener("input", () => {
+document.getElementById("gifSearch").addEventListener("input", function() {
   clearTimeout(gifTimeout);
-  gifTimeout = setTimeout(() => searchGifs(gifSearch.value), 500);
+  gifTimeout = setTimeout(() => searchGifs(this.value), 500);
 });
 
-imgBtn.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
+document.getElementById("imgBtn").addEventListener("click", () => document.getElementById("fileInput").click());
+
+document.getElementById("fileInput").addEventListener("change", function() {
+  const file = this.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => sendMessage(e.target.result, "image");
+  reader.onload = e => {
+    pendingImageData = e.target.result;
+    document.getElementById("prevThumb").src = e.target.result;
+    document.getElementById("prevName").textContent = file.name;
+    document.getElementById("imgPrev").classList.add("show");
+  };
   reader.readAsDataURL(file);
 });
 
-lightbox.addEventListener("click", () => lightbox.classList.remove("open"));
+document.getElementById("prevRm").addEventListener("click", clearPendingImage);
 
-setInterval(() => {
-  db.ref(`rooms/${ROOM}/presence`).once("value", s => {
-    const val = s.val() || {};
-    const users = Object.keys(val);
-    if (users.length <= 1) {
-      db.ref(`rooms/${ROOM}/messages`).remove();
-    }
-  });
-}, 5000);
+document.getElementById("lightbox").addEventListener("click", () => {
+  document.getElementById("lightbox").classList.remove("open");
+});
 </script>
 </body>
 </html>
