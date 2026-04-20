@@ -45,6 +45,8 @@ body{display:flex;justify-content:center;font-family:-apple-system,BlinkMacSyste
 .peer-status{font-size:12px;color:#6b6b8a;margin-top:1px}
 .peer-status.on{color:#44ff88}
 .session-tag{font-size:10px;color:#6b6b8a;background:#1a1a28;padding:3px 8px;border-radius:8px;font-weight:600}
+.clear-btn{position:fixed;bottom:90px;right:20px;width:54px;height:54px;border-radius:50%;background:#ff4466;border:none;color:#fff;font-size:24px;cursor:pointer;z-index:50;box-shadow:0 4px 20px #ff446688;touch-action:manipulation;display:none;align-items:center;justify-content:center}
+.clear-btn.visible{display:flex}
 
 /* Messages */
 .msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
@@ -181,6 +183,9 @@ body{display:flex;justify-content:center;font-family:-apple-system,BlinkMacSyste
   <img id="lightboxImg" src="" alt="full size" />
 </div>
 
+<!-- Clear button -->
+<button class="clear-btn" id="clearBtn">⚡</button>
+
 <!-- Toasts -->
 <div class="toast green" id="joinedToast"></div>
 <div class="toast yellow" id="generalToast"></div>
@@ -272,6 +277,7 @@ async function enterChat() {
   // Switch screens
   document.getElementById("setupScreen").classList.remove("active");
   document.getElementById("chatScreen").classList.add("active");
+  document.getElementById("clearBtn").classList.add("visible");
 
   // Set presence
   const presRef = db.ref(`rooms/${currentRoom}/presence/${myId}`);
@@ -551,6 +557,15 @@ document.getElementById("prevRm").addEventListener("click", clearPendingImage);
 document.getElementById("lightbox").addEventListener("click", () => {
   document.getElementById("lightbox").classList.remove("open");
 });
+
+// Clear button — wipes all messages for both users
+function clearMessages() {
+  if (confirm("Delete all messages for both users?")) {
+    db.ref(`rooms/${currentRoom}/messages`).remove();
+  }
+}
+document.getElementById("clearBtn").addEventListener("click", clearMessages);
+document.getElementById("clearBtn").addEventListener("touchend", e => { e.preventDefault(); clearMessages(); });
 </script>
 </body>
 </html>
