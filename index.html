@@ -562,8 +562,13 @@ document.getElementById("lightbox").addEventListener("click", () => {
 function clearMessages() {
   db.ref(`rooms/${currentRoom}/messages`).remove();
 }
-document.getElementById("clearBtn").addEventListener("click", clearMessages);
-document.getElementById("clearBtn").addEventListener("touchend", e => { e.preventDefault(); clearMessages(); });
+document.getElementById("clearBtn").addEventListener("click", () => {
+  db.ref(`rooms/${currentRoom}/messages`).remove();
+});
+document.getElementById("clearBtn").addEventListener("touchend", e => {
+  e.preventDefault();
+  db.ref(`rooms/${currentRoom}/messages`).remove();
+});
 </script>
 </body>
 </html>
